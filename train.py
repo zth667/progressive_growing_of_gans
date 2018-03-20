@@ -355,7 +355,7 @@ def evaluate_loss(
 #----------------------------------------------------------------------------
 # Image generation API.
 
-def imgapi_load_net(run_id, snapshot=None, random_seed=1000, num_example_latents=1000, load_dataset=True, compile_gen_fn=True):
+def imgapi_load_net(run_id, snapshot=None, random_seed=1000, num_example_latents=1600, load_dataset=True, compile_gen_fn=True):
     class Net: pass
     net = Net()
     net.result_subdir = misc.locate_result_subdir(run_id)
@@ -415,6 +415,18 @@ def imgapi_example(run_id, snapshot):
     # labels:  [minibatch, component], value depends on the dataset and training config
     # images:  [minibatch, channel, height, width], dynamic range 0--255
     misc.save_image(images[0], os.path.join(config.result_dir, 'debug.png'), drange=[0,255])
+
+def imgapi_examples(run_id, snapshot):
+    net = imgapi_load_net(run_id, snapshot, load_dataset=False)
+    latents = net.example_latents;
+    labels = net.example_labels;
+    minibatch_size = 16;
+    for begin in xrange(0, latents.shape[0], minibatch_size):
+        end = min(begin + minibatch_size, latents.shape[0])
+        tmp = net.gen_fn(latents[begin:end], labels[begin:end])
+        images[begin:end] = tmp
+        for i in xrange(begin,end):
+            misc.save_image(images[i], os.path.join(config.result_dir, 'fake_%04d.png'%i), drange=[0,255])
 
 #----------------------------------------------------------------------------
 
