@@ -416,8 +416,8 @@ def imgapi_example(run_id, snapshot):
     # images:  [minibatch, channel, height, width], dynamic range 0--255
     misc.save_image(images[0], os.path.join(config.result_dir, 'debug.png'), drange=[0,255])
 
-def imgapi_examples(run_id, snapshot):
-    net = imgapi_load_net(run_id, snapshot, load_dataset=False)
+def imgapi_examples(run_id, snapshot, num_example_latents=1600):
+    net = imgapi_load_net(run_id, snapshot, num_example_latents=num_example_latents, load_dataset=False)
     latents = net.example_latents
     labels = net.example_labels
     minibatch_size = 16
@@ -427,8 +427,8 @@ def imgapi_examples(run_id, snapshot):
         tmp = net.gen_fn(latents[begin:end], labels[begin:end])
         images[begin:end] = tmp
         for i in xrange(begin,end):
-            misc.save_image(images[i], os.path.join(config.result_dir, 'fake_%04d.png'%i), drange=[0,255])
-	    print "saved",i
+            misc.save_image(images[i], os.path.join(config.result_dir, 'fake_%06d.png'%i), drange=[0,255])
+	    print "saved",end
 #----------------------------------------------------------------------------
 
 def interpolate_latents(
